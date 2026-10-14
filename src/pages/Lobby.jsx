@@ -306,6 +306,69 @@ const Lobby = () => {
           >
             BOMB ROULETTE
           </button>
+
+          <button 
+            onClick={() => handleSetGameType('CAR_DODGE')}
+            disabled={!isHost}
+            title={isHost ? '' : 'เฉพาะ Host เท่านั้นที่เปลี่ยนเกมได้'}
+            style={{ 
+              padding: '0.85rem 0.5rem', 
+              borderRadius: '10px', 
+              border: currentGameType === 'CAR_DODGE' ? '2px solid var(--gold-bright)' : '1px solid rgba(255,255,255,0.08)',
+              background: currentGameType === 'CAR_DODGE' ? 'var(--burgundy)' : 'rgba(11, 6, 16, 0.6)',
+              color: currentGameType === 'CAR_DODGE' ? 'var(--gold-bright)' : 'var(--text-muted)',
+              fontWeight: '700',
+              cursor: isHost ? 'pointer' : 'not-allowed',
+              opacity: isHost ? 1 : 0.6,
+              fontSize: '0.85rem',
+              boxShadow: currentGameType === 'CAR_DODGE' ? '0 0 15px rgba(239, 217, 160, 0.3)' : 'none',
+              transition: 'all 0.25s ease'
+            }}
+          >
+            CAR DODGE 🚗
+          </button>
+
+          <button 
+            onClick={() => handleSetGameType('MEMORY')}
+            disabled={!isHost}
+            title={isHost ? '' : 'เฉพาะ Host เท่านั้นที่เปลี่ยนเกมได้'}
+            style={{ 
+              padding: '0.85rem 0.5rem', 
+              borderRadius: '10px', 
+              border: currentGameType === 'MEMORY' ? '2px solid var(--gold-bright)' : '1px solid rgba(255,255,255,0.08)',
+              background: currentGameType === 'MEMORY' ? 'var(--burgundy)' : 'rgba(11, 6, 16, 0.6)',
+              color: currentGameType === 'MEMORY' ? 'var(--gold-bright)' : 'var(--text-muted)',
+              fontWeight: '700',
+              cursor: isHost ? 'pointer' : 'not-allowed',
+              opacity: isHost ? 1 : 0.6,
+              fontSize: '0.85rem',
+              boxShadow: currentGameType === 'MEMORY' ? '0 0 15px rgba(239, 217, 160, 0.3)' : 'none',
+              transition: 'all 0.25s ease'
+            }}
+          >
+            MEMORY BATTLE 🧠
+          </button>
+
+          <button 
+            onClick={() => handleSetGameType('QUIZ')}
+            disabled={!isHost}
+            title={isHost ? '' : 'เฉพาะ Host เท่านั้นที่เปลี่ยนเกมได้'}
+            style={{ 
+              padding: '0.85rem 0.5rem', 
+              borderRadius: '10px', 
+              border: currentGameType === 'QUIZ' ? '2px solid var(--gold-bright)' : '1px solid rgba(255,255,255,0.08)',
+              background: currentGameType === 'QUIZ' ? 'var(--burgundy)' : 'rgba(11, 6, 16, 0.6)',
+              color: currentGameType === 'QUIZ' ? 'var(--gold-bright)' : 'var(--text-muted)',
+              fontWeight: '700',
+              cursor: isHost ? 'pointer' : 'not-allowed',
+              opacity: isHost ? 1 : 0.6,
+              fontSize: '0.85rem',
+              boxShadow: currentGameType === 'QUIZ' ? '0 0 15px rgba(239, 217, 160, 0.3)' : 'none',
+              transition: 'all 0.25s ease'
+            }}
+          >
+            QUICK QUIZ ⚡
+          </button>
         </div>
 
         {/* Card Rule Editor Button */}

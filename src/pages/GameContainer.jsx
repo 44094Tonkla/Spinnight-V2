@@ -5,6 +5,10 @@ import CardGame from '../components/CardGame';
 import NeverHaveIEverGame from '../components/NeverHaveIEverGame';
 import BombRouletteGame from '../components/BombRouletteGame';
 import SpinWheelGame from '../components/SpinWheelGame';
+import CarDodgeGame from '../components/CarDodgeGame';
+import MemoryBattleGame from '../components/MemoryBattleGame';
+import QuickQuizGame from '../components/QuickQuizGame';
+import GameResultsModal from '../components/GameResultsModal';
 import '../styles/global.css';
 
 const GameContainer = () => {
@@ -29,6 +33,7 @@ const GameContainer = () => {
   } = useGameState();
 
   const gameType = gameState?.gameType || 'SPIN';
+  const gameStatus = gameState?.gameStatus || 'LOBBY';
   const [showGameIntro, setShowGameIntro] = useState(true);
   const [introSeconds, setIntroSeconds] = useState(5);
 
@@ -76,8 +81,27 @@ const GameContainer = () => {
       description: 'ระเบิดจะถูกส่งต่อจากคนหนึ่งไปอีกคนหนึ่ง โดยเวลายังคงนับถอยหลังอยู่เรื่อย ๆ ใครถือระเบิดอยู่เมื่อเวลาหมด คนนั้นเป็นคนที่โดนและต้องดื่มหมดแก้ว',
       steps: ['เริ่มเกมและรับระเบิดจากผู้เล่นที่ถูกสุ่ม', 'ส่งต่อระเบิดให้คนถัดไปก่อนเวลาหมด', 'เวลาจะเดินต่อเนื่องแม้เปลี่ยนคนถือ', 'ถ้าเวลาหมดในมือใคร คนนั้นโดนระเบิด'],
       image: '/images/illustrations/bomb-mascot.svg'
+    },
+    CAR_DODGE: {
+      title: 'CAR DODGE · ขับรถหลบสิ่งกีดขวาง',
+      description: 'บังคับรถหลบสิ่งกีดขวางและเก็บเหรียญทองให้ได้มากที่สุดภายในเวลา 30 วินาทีเพื่อทำคะแนนสูงสุด',
+      steps: ['ใช้ปุ่มลูกศรซ้าย/ขวา หรือปุ่มบนหน้าจอ', 'เก็บเหรียญเพื่อเพิ่มคะแนน', 'หลบสิ่งกีดขวางเพื่อไม่ให้เสียคะแนน', 'แข่งกันทำคะแนนสูงสุดในห้อง'],
+      image: '/images/illustrations/card-mascot.svg'
+    },
+    MEMORY: {
+      title: 'MEMORY BATTLE · จับคู่การ์ด',
+      description: 'เปิดการ์ดทีละ 2 ใบเพื่อจับคู่ภาพที่เหมือนกัน แข่งกันจับคู่ให้ครบทุกคู่ด้วยความรวดเร็ว',
+      steps: ['คลิกเปิดการ์ดทีละ 2 ใบ', 'หากการ์ดเหมือนกัน จะได้จับคู่และได้คะแนน', 'หากไม่เหมือนกัน การ์ดจะคว่ำลง', 'จับคู่ครบทั้งหมดเพื่อจบเกม'],
+      image: '/images/illustrations/never-mascot.svg'
+    },
+    QUIZ: {
+      title: 'QUICK QUIZ · ตอบคำถาม 10 ข้อ',
+      description: 'ตอบคำถามความรู้ทั่วไปและปาร์ตี้ 10 ข้อแข่งกับเพื่อนในห้อง สะสมคะแนนให้ได้มากที่สุด',
+      steps: ['อ่านคำถามและเลือกตัวเลือกที่ถูกต้อง', 'ตอบถูกรับ +10 คะแนน', 'ตอบครบ 10 ข้อเพื่อดูคะแนนรวม', 'ผู้ที่ได้คะแนนสูงสุดจะเป็นผู้ชนะ'],
+      image: '/images/illustrations/bomb-mascot.svg'
     }
   };
+
   const intro = gameIntro[gameType] || gameIntro.SPIN;
   const players = gameState?.players || [];
   const currentUserId = currentUser?.uid || 'host-1';
@@ -105,6 +129,9 @@ const GameContainer = () => {
     if (gameType === 'CARD') return 'CARD GAME';
     if (gameType === 'NEVER') return 'NEVER HAVE I EVER';
     if (gameType === 'BOMB') return 'BOMB ROULETTE';
+    if (gameType === 'CAR_DODGE') return 'CAR DODGE';
+    if (gameType === 'MEMORY') return 'MEMORY BATTLE';
+    if (gameType === 'QUIZ') return 'QUICK QUIZ';
     return 'WHEEL SPIN';
   };
 
@@ -190,7 +217,15 @@ const GameContainer = () => {
 
       {/* Dynamic Game Component Renderer */}
       <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, margin: '0.5rem 0' }}>
-        {gameType === 'CARD' ? (
+        {gameStatus === 'RESULTS' ? (
+          <GameResultsModal
+            gameState={gameState}
+            currentUser={currentUser}
+            updateGameState={updateGameState}
+            isHost={isHost}
+            onBackToLobby={handleBackToLobby}
+          />
+        ) : gameType === 'CARD' ? (
           <CardGame 
             gameState={gameState}
             currentUser={currentUser}
@@ -218,6 +253,27 @@ const GameContainer = () => {
             onToggleTimerVisibility={toggleBombTimerVisibility}
             onPassBomb={passBomb}
             onTriggerExplosion={triggerExplosion}
+            isHost={isHost}
+          />
+        ) : gameType === 'CAR_DODGE' ? (
+          <CarDodgeGame
+            gameState={gameState}
+            currentUser={currentUser}
+            updateGameState={updateGameState}
+            isHost={isHost}
+          />
+        ) : gameType === 'MEMORY' ? (
+          <MemoryBattleGame
+            gameState={gameState}
+            currentUser={currentUser}
+            updateGameState={updateGameState}
+            isHost={isHost}
+          />
+        ) : gameType === 'QUIZ' ? (
+          <QuickQuizGame
+            gameState={gameState}
+            currentUser={currentUser}
+            updateGameState={updateGameState}
             isHost={isHost}
           />
         ) : (
