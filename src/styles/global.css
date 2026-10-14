@@ -493,8 +493,16 @@ h1, h2, h3, .heading-serif {
   .brand-headline {
     font-size: 1.6rem !important;
   }
+  .site-navbar {
+    padding: 0.6rem 0.75rem !important;
+  }
+  .site-navbar a, .site-navbar span {
+    font-size: 0.72rem !important;
+  }
+  .navbar-brand {
+    font-size: 1.25rem !important;
+  }
 }
-<<<<<<< HEAD
 
 @media (max-width: 768px) {
   .site-navbar {
@@ -511,5 +519,17 @@ h1, h2, h3, .heading-serif {
     flex-wrap: wrap;
   }
 }
-=======
->>>>>>> origin/main
+
+.spin-game-grid {
+  display: grid;
+  grid-template-columns: clamp(240px, 28vw, 300px) 1fr;
+  gap: 2rem;
+  width: 100%;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .spin-game-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
