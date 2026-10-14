@@ -15,6 +15,8 @@ const DEFAULT_CHALLENGES = [
 const SpinWheelGame = ({ gameState, currentUser, updateGameState, isHost, onBackToLobby, onLeaveRoom }) => {
   const players = gameState?.players || [];
   const currentUserId = currentUser?.uid || 'host-1';
+  const currentTurnPlayerId =
+     gameState?.currentTurnPlayerId || players[0]?.id;
   const currentRound = gameState?.currentRound || 1;
   const maxRounds = gameState?.rounds || 5;
   const scores = gameState?.scores || {};
@@ -192,26 +194,27 @@ const SpinWheelGame = ({ gameState, currentUser, updateGameState, isHost, onBack
     });
   };
 
+ 
   const handleNextRound = async () => {
+    const currentTurnIndex = players.findIndex(
+      (player) => player.id === currentTurnPlayerId
+    );
+
+    const nextTurnPlayer =
+      players[(currentTurnIndex + 1) % players.length] || players[0];
+
     await updateGameState({
       currentRound: currentRound + 1,
-      gameStatus: 'LOBBY',
-      selectedPlayer: null,
-      selectedPlayerId: null,
-      currentChallenge: null
-    });
-  };
-
-  const handlePlayAgain = async () => {
-    await updateGameState({
-      currentRound: 1,
+      currentTurnPlayerId: nextTurnPlayer?.id || currentUserId,
       gameStatus: 'LOBBY',
       selectedPlayer: null,
       selectedPlayerId: null,
       currentChallenge: null,
-      scores: {}
+      spinRotation: 0,
+      spinStartedAt: null
     });
   };
+
 
   const sortedLeaderboard = [...players].sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0));
 
@@ -389,7 +392,7 @@ const SpinWheelGame = ({ gameState, currentUser, updateGameState, isHost, onBack
             {spinPhase === 'LOBBY' && (
               <>
                 <div className="round-ready-note">ROUND {String(currentRound).padStart(2, '0')} · READY TO SPIN</div>
-                {isHost ? (
+                {currentTurnPlayerId === currentUserId ? (
                   <button 
                     onClick={handleSpinClick} 
                     disabled={isSpinningLocal || players.length < 2}
