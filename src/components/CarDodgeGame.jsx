@@ -4,8 +4,6 @@ import '../styles/global.css';
 const CarDodgeGame = ({ gameState, currentUser, updateGameState, isHost }) => {
   const players = gameState?.players || [];
   const currentUserId = currentUser?.uid || 'host-1';
-  const scores = gameState?.scores || {};
-  const gameStatus = gameState?.carDodgeStatus || 'PLAYING'; // 'PLAYING', 'ROUND_OVER'
 
   const [carLane, setCarLane] = useState(1); // 3 lanes: 0, 1, 2
   const [obstacles, setObstacles] = useState([]);
@@ -13,17 +11,19 @@ const CarDodgeGame = ({ gameState, currentUser, updateGameState, isHost }) => {
   const [myScore, setMyScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [speedMultiplier, setSpeedMultiplier] = useState(1.0);
 
-  const canvasRef = useRef(null);
+  const gameTimeElapsed = useRef(0);
+  const lastSpawnTime = useRef(0);
 
-  // Game loop timer
+  // Timer countdown & speed scaling over time
   useEffect(() => {
     if (!isPlaying || timeLeft <= 0) return;
     const timer = setInterval(() => {
+      gameTimeElapsed.current += 1;
       setTimeLeft(prev => {
         if (prev <= 1) {
           setIsPlaying(false);
-          // Submit final score
           const currentScores = gameState?.scores || {};
           const updatedScores = { ...currentScores, [currentUserId]: myScore };
           updateGameState({ scores: updatedScores, carDodgeStatus: 'ROUND_OVER' });
@@ -31,57 +31,104 @@ const CarDodgeGame = ({ gameState, currentUser, updateGameState, isHost }) => {
         }
         return prev - 1;
       });
+
+      // Speed scaling based on time elapsed: 1.00x -> 1.15x (15s) -> 1.30x (30s) -> 1.45x (45s) -> 1.60x (60s+)
+      const elapsed = gameTimeElapsed.current;
+      let multiplier = 1.0;
+      if (elapsed >= 60) multiplier = 1.60;
+      else if (elapsed >= 45) multiplier = 1.45;
+      else if (elapsed >= 30) multiplier = 1.30;
+      else if (elapsed >= 15) multiplier = 1.15;
+      setSpeedMultiplier(multiplier);
+
     }, 1000);
     return () => clearInterval(timer);
   }, [isPlaying, timeLeft, myScore, currentUserId, gameState?.scores, updateGameState]);
 
-  // Spawner and mover loop
+  // Main game loop (Obstacles, Coins, Collision detection)
   useEffect(() => {
     if (!isPlaying) return;
+
     const interval = setInterval(() => {
-      // Move obstacles down
+      const currentSpeed = 5 * speedMultiplier;
+
+      // Move obstacles down & filter out-of-bounds
       setObstacles(prev => prev
-        .map(obs => ({ ...obs, y: obs.y + 6 }))
+        .map(obs => ({ ...obs, y: obs.y + currentSpeed }))
         .filter(obs => obs.y < 500)
       );
 
-      // Move coins down
+      // Move coins down & filter out-of-bounds
       setCoins(prev => prev
-        .map(c => ({ ...c, y: c.y + 6 }))
+        .map(c => ({ ...c, y: c.y + currentSpeed }))
         .filter(c => c.y < 500)
       );
 
-      // Randomly spawn obstacles or coins
-      if (Math.random() < 0.12) {
-        const lane = Math.floor(Math.random() * 3);
-        setObstacles(prev => [...prev, { id: Date.now() + Math.random(), lane, y: -40 }]);
-      }
-      if (Math.random() < 0.1) {
-        const lane = Math.floor(Math.random() * 3);
-        setCoins(prev => [...prev, { id: Date.now() + Math.random(), lane, y: -40 }]);
+      // Controlled Spawner with Guaranteed Safe Lane
+      const now = Date.now();
+      // Spawn interval ~1.8 seconds, decreasing slightly with speed multiplier
+      const spawnInterval = Math.max(900, 1800 / speedMultiplier);
+      if (now - lastSpawnTime.current > spawnInterval) {
+        lastSpawnTime.current = now;
+
+        // Guaranteed safe lane (at least 1 lane out of 3 is free of obstacles)
+        const safeLane = Math.floor(Math.random() * 3);
+        const newObstacles = [];
+        const newCoins = [];
+
+        for (let lane = 0; lane < 3; lane++) {
+          if (lane !== safeLane) {
+            // 70% chance to put obstacle in non-safe lanes so it's not overly packed
+            if (Math.random() < 0.7) {
+              newObstacles.push({
+                id: Date.now() + Math.random(),
+                lane,
+                y: -50,
+                collided: false
+              });
+            }
+          } else {
+            // 50% chance to spawn a coin in the safe lane
+            if (Math.random() < 0.5) {
+              newCoins.push({
+                id: Date.now() + Math.random(),
+                lane,
+                y: -50,
+                collected: false
+              });
+            }
+          }
+        }
+
+        if (newObstacles.length > 0) {
+          setObstacles(prev => [...prev, ...newObstacles]);
+        }
+        if (newCoins.length > 0) {
+          setCoins(prev => [...prev, ...newCoins]);
+        }
       }
 
-      // Check collisions
-      obstacles.forEach(obs => {
-        if (obs.lane === carLane && obs.y > 360 && obs.y < 440) {
-          // Hit obstacle!
+      // Collision Detection with Deduplication
+      setObstacles(prev => prev.map(obs => {
+        if (!obs.collided && obs.lane === carLane && obs.y >= 350 && obs.y <= 420) {
           setMyScore(s => Math.max(0, s - 5));
-          setObstacles(prev => prev.filter(o => o.id !== obs.id));
+          return { ...obs, collided: true };
         }
-      });
+        return obs;
+      }));
 
-      coins.forEach(c => {
-        if (c.lane === carLane && c.y > 360 && c.y < 440) {
-          // Collected coin!
+      setCoins(prev => prev.filter(c => {
+        if (!c.collected && c.lane === carLane && c.y >= 350 && c.y <= 420) {
           setMyScore(s => s + 10);
-          setCoins(prev => prev.filter(item => item.id !== c.id));
+          return false; // remove collected coin
         }
-      });
+        return c.y < 500;
+      }));
 
-    }, 50);
+    }, 30);
 
     return () => clearInterval(interval);
-  }, [isPlaying, obstacles, coins, carLane]);
+  }, [isPlaying, carLane, speedMultiplier]);
 
   // Keyboard controls
   useEffect(() => {
@@ -98,9 +145,9 @@ const CarDodgeGame = ({ gameState, currentUser, updateGameState, isHost }) => {
 
   return (
     <div className="glass-card" style={{ width: '100%', maxWidth: '600px', padding: '1.75rem', textAlign: 'center' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
         <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-bright)' }}>🚗 CAR DODGE</h3>
-        <span className="counter">เวลา: {timeLeft}s | คะแนน: {myScore}</span>
+        <span className="counter">เวลา: {timeLeft}s | ความเร็ว: {speedMultiplier.toFixed(2)}x | คะแนน: {myScore}</span>
       </div>
 
       {isPlaying ? (
@@ -136,7 +183,8 @@ const CarDodgeGame = ({ gameState, currentUser, updateGameState, isHost }) => {
               fontSize: '0.8rem',
               fontWeight: '900',
               color: '#fff',
-              boxShadow: '0 0 10px rgba(230, 57, 70, 0.6)'
+              boxShadow: '0 0 10px rgba(230, 57, 70, 0.6)',
+              opacity: obs.collided ? 0.4 : 1
             }}>
               🚧 
             </div>
