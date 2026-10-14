@@ -21,7 +21,8 @@ const SpinWheelGame = ({ gameState, currentUser, updateGameState, isHost, onBack
   const selectedPlayer = gameState?.selectedPlayer || null;
   const currentChallenge = gameState?.currentChallenge || null;
   const spinPhase = gameState?.gameStatus || 'LOBBY';
-
+  const spinRotation = gameState?.spinRotation;
+  const spinStartedAt = gameState?.spinStartedAt;
   const [rotation, setRotation] = useState(0);
   const [isSpinningLocal, setIsSpinningLocal] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(60);
