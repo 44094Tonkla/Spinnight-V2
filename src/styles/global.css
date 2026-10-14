@@ -494,6 +494,7 @@ h1, h2, h3, .heading-serif {
     font-size: 1.6rem !important;
   }
 }
+<<<<<<< HEAD
 
 @media (max-width: 768px) {
   .site-navbar {
@@ -510,3 +511,5 @@ h1, h2, h3, .heading-serif {
     flex-wrap: wrap;
   }
 }
+=======
+>>>>>>> origin/main
