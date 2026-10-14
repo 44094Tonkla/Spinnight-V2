@@ -540,3 +540,217 @@ h1, h2, h3, .heading-serif {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Join Room responsive layout */
+.join-room-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 3rem 1rem 5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: radial-gradient(
+    circle at 50% 20%,
+    #33192F 0%,
+    #1B0E1F 60%,
+    #0B0610 100%
+  );
+  color: var(--text-main);
+  overflow-x: clip;
+}
+
+.join-room-title {
+  max-width: 100%;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.join-room-description {
+  width: 100%;
+  max-width: 560px;
+  margin-bottom: 2rem;
+  padding: 0 0.25rem;
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.join-room-form {
+  width: 100%;
+  max-width: 560px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 2rem;
+  border: 1px solid var(--burgundy);
+  border-radius: 18px;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.7),
+    0 0 30px rgba(122, 31, 61, 0.25);
+}
+
+.join-room-field {
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 1.5rem;
+}
+
+.join-room-label {
+  display: block;
+  margin-bottom: 0.65rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.join-room-input {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.join-room-code {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--gold-bright);
+}
+
+.join-room-avatar-section {
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 2rem;
+}
+
+.join-room-avatar-grid {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.join-room-avatar {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  padding: 2px;
+  border: 2px solid var(--burgundy);
+  border-radius: 50%;
+  background: rgba(11, 6, 16, 0.5);
+  overflow: hidden;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.join-room-avatar.selected {
+  border-color: var(--gold-bright);
+  background: rgba(214, 175, 92, 0.2);
+  box-shadow: 0 0 15px rgba(239, 217, 160, 0.5);
+}
+
+.join-room-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.join-room-submit {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 1rem;
+  font-size: 1rem;
+}
+
+.join-room-error {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.5rem;
+  background: rgba(230, 57, 70, 0.15);
+  border: 1px solid var(--pressure-red);
+  color: #FF6B6B;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.join-room-help {
+  margin-top: 1.25rem;
+  color: var(--text-very-muted);
+  font-size: 0.8rem;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.join-room-back {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.join-room-back a {
+  color: var(--text-very-muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .join-room-page {
+    padding: 2.5rem 1rem 3rem;
+  }
+
+  .join-room-form {
+    padding: 1.25rem 1rem !important;
+  }
+
+  .join-room-avatar-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .join-room-page {
+    padding: 2rem 0.75rem;
+  }
+
+  .join-room-form {
+    padding: 1rem 0.75rem !important;
+  }
+
+  .join-room-description {
+    font-size: 0.9rem;
+  }
+
+  .join-room-avatar-grid {
+    gap: 7px;
+  }
+
+  .join-room-code {
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+  }
+}
