@@ -28,6 +28,8 @@ export const GameProvider = ({ children }) => {
     hostId: 'host-1',
     gameType: 'SPIN',
     gameStatus: 'LOBBY',
+    spinRotation: 0,
+    spinStartedAt: null,
     currentRound: 1,
     scores: { 'host-1': 25, 'player-2': 30, 'player-3': 15, 'player-4': 20, 'player-5': 10 },
     cardRules: DEFAULT_CARD_RULES,
@@ -78,6 +80,8 @@ export const GameProvider = ({ children }) => {
       scores: gs.scores || {},
       currentTurn: gs.currentTurn || 0,
       spinResult: gs.spinResult || null,
+      spinRotation: gs.spinRotation ?? 0,
+      spinStartedAt: gs.spinStartedAt ?? null,
       boardState: gs.boardState || {},
       hostId: roomData.hostId || 'host-1',
       // Card Game state
