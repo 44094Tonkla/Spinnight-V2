@@ -148,32 +148,47 @@ const SpinWheelGame = ({ gameState, currentUser, updateGameState, isHost, onBack
     return () => clearInterval(interval);
   }, [timerActive, timerSeconds]);
 
-  // Spin Action (Host)
-  const handleSpinClick = async () => {
-    if (players.length < 2 || isSpinningLocal) return;
 
-    setIsSpinningLocal(true);
-    const randomIndex = Math.floor(Math.random() * players.length);
-    const chosenPlayer = players[randomIndex];
-    const chosenChallenge = DEFAULT_CHALLENGES[Math.floor(Math.random() * DEFAULT_CHALLENGES.length)];
+// Spin Action
+const handleSpinClick = async () => {
+  if (players.length < 2 || isSpinningLocal) return;
 
-    const sliceDeg = 360 / players.length;
-    const targetDeg = 3600 + (players.length - randomIndex) * sliceDeg - sliceDeg / 2;
-    setRotation(prev => prev + targetDeg);
+  setIsSpinningLocal(true);
 
-    await updateGameState({ gameStatus: 'SPINNING' });
+  const randomIndex = Math.floor(Math.random() * players.length);
+  const chosenPlayer = players[randomIndex];
+  const chosenChallenge =
+    DEFAULT_CHALLENGES[
+      Math.floor(Math.random() * DEFAULT_CHALLENGES.length)
+    ];
 
-    setTimeout(async () => {
-      setIsSpinningLocal(false);
-      await updateGameState({
-        gameStatus: 'PICKED',
-        selectedPlayer: chosenPlayer,
-        selectedPlayerId: chosenPlayer.id,
-        currentChallenge: chosenChallenge
-      });
-    }, 4500);
-  };
+  const sliceDeg = 360 / players.length;
+  const targetDeg =
+    3600 +
+    (players.length - randomIndex) * sliceDeg -
+    sliceDeg / 2;
 
+  const nextRotation = rotation + targetDeg;
+
+  setRotation(nextRotation);
+
+  await updateGameState({
+    gameStatus: 'SPINNING',
+    spinRotation: nextRotation,
+    spinStartedAt: Date.now()
+  });
+
+  setTimeout(async () => {
+    setIsSpinningLocal(false);
+
+    await updateGameState({
+      gameStatus: 'PICKED',
+      selectedPlayer: chosenPlayer,
+      selectedPlayerId: chosenPlayer.id,
+      currentChallenge: chosenChallenge
+    });
+  }, 4500);
+};
   const handleContinueToChallenge = async () => {
     setTimerSeconds(60);
     setTimerActive(true);
