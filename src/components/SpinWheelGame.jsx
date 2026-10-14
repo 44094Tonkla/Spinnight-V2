@@ -241,13 +241,7 @@ const SpinWheelGame = ({ gameState, currentUser, updateGameState, isHost, onBack
 
       {/* 2. Main Layout (Scoreboard Left + Main Wheel Center ALWAYS VISIBLE) */}
       {spinPhase !== 'FINISHED' ? (
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'clamp(240px, 28vw, 300px) 1fr', 
-          gap: '2rem', 
-          width: '100%', 
-          alignItems: 'start' 
-        }}>
+        <div className="spin-game-grid">
           
           {/* Left Column: SCOREBOARD */}
           <div className="glass-card" style={{ padding: '1.5rem 1.25rem', border: '1px solid var(--glass-border)' }}>

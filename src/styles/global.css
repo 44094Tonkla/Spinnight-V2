@@ -383,6 +383,13 @@ h1, h2, h3, .heading-serif {
 .home-action-button { position:relative; z-index:10; pointer-events:auto; min-width:190px; }
 .home-action-button::before, .home-action-button::after { pointer-events:none; }
 
+@media (max-width: 480px) {
+  .home-action-button {
+    min-width: unset !important;
+    width: 100% !important;
+  }
+}
+
 @keyframes homeStarTwinkle { 0%,100% { opacity:.18; transform:scale(.65); } 45% { opacity:.5; transform:scale(1); } 60% { opacity:.9; transform:scale(1.45); } }
 
 /* --- Pre-game instruction card --- */
