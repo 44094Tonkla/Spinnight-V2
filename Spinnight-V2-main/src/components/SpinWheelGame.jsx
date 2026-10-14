@@ -26,6 +26,8 @@ const SpinWheelGame = ({ gameState, currentUser, updateGameState, isHost, onBack
   const [isSpinningLocal, setIsSpinningLocal] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(60);
   const [timerActive, setTimerActive] = useState(false);
+  const spinRotation = gameState?.spinRotation;
+  const spinStartedAt = gameState?.spinStartedAt;
 
   const canvasRef = useRef(null);
 
@@ -106,7 +108,7 @@ const SpinWheelGame = ({ gameState, currentUser, updateGameState, isHost, onBack
 
   }, [players, rotation]);
 
-  // Always restore the wheel screen cleanly when a new round enters LOBBY.
+  // Reset the wheel when a new round enters LOBBY.
   useEffect(() => {
     if (spinPhase === 'LOBBY') {
       setIsSpinningLocal(false);
@@ -129,23 +131,39 @@ const SpinWheelGame = ({ gameState, currentUser, updateGameState, isHost, onBack
     return () => clearInterval(interval);
   }, [timerActive, timerSeconds]);
 
-  // Spin Action (Host)
+ 
+  // Spin Action
   const handleSpinClick = async () => {
     if (players.length < 2 || isSpinningLocal) return;
 
     setIsSpinningLocal(true);
+
     const randomIndex = Math.floor(Math.random() * players.length);
     const chosenPlayer = players[randomIndex];
-    const chosenChallenge = DEFAULT_CHALLENGES[Math.floor(Math.random() * DEFAULT_CHALLENGES.length)];
+    const chosenChallenge =
+      DEFAULT_CHALLENGES[
+        Math.floor(Math.random() * DEFAULT_CHALLENGES.length)
+      ];
 
     const sliceDeg = 360 / players.length;
-    const targetDeg = 3600 + (players.length - randomIndex) * sliceDeg - sliceDeg / 2;
-    setRotation(prev => prev + targetDeg);
+    const targetDeg =
+      3600 +
+      (players.length - randomIndex) * sliceDeg -
+      sliceDeg / 2;
 
-    await updateGameState({ gameStatus: 'SPINNING' });
+    const nextRotation = rotation + targetDeg;
+
+    setRotation(nextRotation);
+
+    await updateGameState({
+      gameStatus: 'SPINNING',
+      spinRotation: nextRotation,
+      spinStartedAt: Date.now()
+    });
 
     setTimeout(async () => {
       setIsSpinningLocal(false);
+
       await updateGameState({
         gameStatus: 'PICKED',
         selectedPlayer: chosenPlayer,
@@ -154,6 +172,7 @@ const SpinWheelGame = ({ gameState, currentUser, updateGameState, isHost, onBack
       });
     }, 4500);
   };
+
 
   const handleContinueToChallenge = async () => {
     setTimerSeconds(60);
