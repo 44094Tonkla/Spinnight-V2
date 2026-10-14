@@ -116,6 +116,25 @@ const SpinWheelGame = ({ gameState, currentUser, updateGameState, isHost, onBack
     }
   }, [spinPhase, currentRound]);
 
+  // Sync wheel animation across all players in the room.
+  useEffect(() => {
+    if (
+      spinPhase !== 'SPINNING' ||
+      typeof spinRotation !== 'number'
+    ) {
+      return;
+    }
+
+    setIsSpinningLocal(true);
+    setRotation(spinRotation);
+
+    const timeout = setTimeout(() => {
+      setIsSpinningLocal(false);
+    }, 4500);
+
+    return () => clearTimeout(timeout);
+  }, [spinPhase, spinRotation, spinStartedAt]);
+
   // Challenge Timer
   useEffect(() => {
     let interval = null;
